@@ -4,7 +4,10 @@ import itineraryService from "../services/itenary.services.js";
 class ItineraryController{
 
     async travelPlan(req,res,next){
+
         let travelPlan = await itineraryService.travelPlan(req);
+        console.log("hello");
+        
         res.status(200).json(travelPlan);
     }
 

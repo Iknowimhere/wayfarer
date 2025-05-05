@@ -47,7 +47,7 @@ class ItineraryService {
                 .replace(/```/g, "")
                 .trim();
 
-            const jsonData = JSON.parse(content);
+            const jsonData = content? JSON.parse(content) : null;
             
             let payload = req.body;
             payload.itinerary = jsonData;
@@ -57,7 +57,7 @@ class ItineraryService {
             // return { message: "Success", data: jsonData, travelPlan: "newTravelPlan" };
 
         } catch (error) {
-            throw err;
+            throw error;
         }
 
     }

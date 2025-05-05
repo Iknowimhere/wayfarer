@@ -10,7 +10,7 @@ body {
   background-color: #f5f5f5;
   color: #333;
   line-height: 1.6;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 /* Form styles */
