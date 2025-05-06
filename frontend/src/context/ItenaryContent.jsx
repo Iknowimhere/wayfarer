@@ -23,8 +23,6 @@ export const ItineraryProvider = ({ children }) => {
             const response = await axios.get("/itenaries", {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            
- 
             setItenaries((prev) => [...prev, ...response.data]);
         } catch (error) {
             console.error("Error fetching itineraries:", error);

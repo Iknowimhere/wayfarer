@@ -20,6 +20,15 @@ class ItineraryController{
         res.sendStatus(204)
     }
 
+
+    async getAutocomplete(req,res,next){
+        let autocomplete = await itineraryService.getAutocomplete(req);
+        if (!autocomplete) {
+            res.status(404).json({ message: "No data found" });
+            return;
+        }
+        res.status(200).json(autocomplete);
+    }
 }
 
 export default new ItineraryController();

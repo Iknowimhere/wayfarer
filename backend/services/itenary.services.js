@@ -1,5 +1,6 @@
 import openAi from 'openai';
 import itineraryModel from '../models/itenary.model.js';
+import axios from 'axios';
 
 class ItineraryService {
 
@@ -94,6 +95,19 @@ class ItineraryService {
             throw err;
         }
     }
+
+    async getAutocomplete(req) {
+       let { location } = req.query;
+        
+       const response = await axios.get('https://maps.googleapis.com/maps/api/place/autocomplete/json', {
+      params: {
+        input: location,
+        key: process.env.GOOGLE_API,
+      },
+    });
+    return response.data.predictions.map((prediction) => prediction.description);
+    }
+
 }
 
 export default new ItineraryService();

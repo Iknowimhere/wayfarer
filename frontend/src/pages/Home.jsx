@@ -6,7 +6,7 @@ import useItinerary from "../context/ItenaryContent";
 import {
   Box,
   Button,
-  Grid, 
+  Grid,
   Paper,
   TextField,
   Typography,
@@ -25,6 +25,9 @@ import Navbar from "../components/Navbar";
 
 const Home = () => {
   const { token } = useAuth();
+  const [query, setQuery] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const { itenaries, setItenaries } = useItinerary();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -35,7 +38,7 @@ const Home = () => {
     budget: "",
   });
   // console.log(formData);
-  
+
 
   useEffect(() => {
     if (!token) {
@@ -45,9 +48,30 @@ const Home = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [name]: value,location: query });
   };
 
+  const handleLocationChange = async (e) => {
+    const input = e.target.value;
+    setActiveIndex(-1);
+
+    if (input.length > 1) {
+      try {
+        const res = await axios.get('/itenaries/autocomplete', {
+          params: { location: input },
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        console.log(res);
+        
+        setSuggestions(res.data);
+      } catch (err) {
+        console.error('Error fetching suggestions', err);
+      }
+    } else {
+      setSuggestions([]);
+    }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -55,11 +79,27 @@ const Home = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log(response);
-      
+
       setItenaries((prev) => [...prev, response.data]);
       alert("Itinerary created successfully!");
     } catch (error) {
       console.error("Error creating itinerary:", error);
+    }
+  };
+
+  const handleSelect = (description) => {
+    setQuery(description);
+    setSuggestions([]);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowDown') {
+      setActiveIndex((prev) => (prev + 1) % suggestions.length);
+    } else if (e.key === 'ArrowUp') {
+      setActiveIndex((prev) => (prev - 1 + suggestions.length) % suggestions.length);
+    } else if (e.key === 'Enter' && activeIndex >= 0) {
+      const selected = suggestions[activeIndex];
+      handleSelect(selected);
     }
   };
 
@@ -93,6 +133,8 @@ const Home = () => {
                 padding: 3,
                 backgroundColor: "#1e1e2f",
                 color: "#fff",
+                position: "relative",
+                overflow: "hidden",
               }}
             >
               <Typography variant="h5" gutterBottom>
@@ -148,13 +190,32 @@ const Home = () => {
                   fullWidth
                   label="Location"
                   name="location"
-                  value={formData.location}
-                  onChange={handleInputChange}
+                  value={query}
+                  onChange={handleLocationChange}
+                  onKeyDown={handleKeyDown}
                   margin="normal"
                   required
                   InputLabelProps={{ style: { color: "#fff" } }}
                   sx={{ input: { color: "#fff" }, marginBottom: 2 }}
                 />
+                {suggestions.length > 0 && (
+                  <ul style={{ border: '1px solid #ccc', listStyle: 'none', padding: 0, margin: 0,position: 'absolute', backgroundColor: 'white', zIndex: 1 }}>
+                    {suggestions.map((sug, index) => (
+                      <li
+                        key={sug}
+                        onClick={() => handleSelect(sug)}
+                        style={{
+                          padding: '8px',
+                          cursor: 'pointer',
+                          color: '#000',
+                          backgroundColor: index === activeIndex ? '#f0f0f0' : 'white',
+                        }}
+                      >
+                        {sug}
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 <TextField
                   fullWidth
                   label="Start Date"
@@ -253,18 +314,18 @@ const Home = () => {
                               <strong>Days:</strong>
                             </Typography>
                             <>
-                            <ul>
-                              {itenary?.days?.map((day, dayIndex) => (
-                                <li key={dayIndex}>
-                                  <strong>Date:</strong> {day.date} <br />
-                                  <strong>Plan:</strong> {day.plan.join(", ")} <br />
-                                  <strong>Cost:</strong> ${day.cost} <br />
-                                  <strong>Tip:</strong> {day.tip}
-                                </li>
-                              ))}
-                            </ul>
+                              <ul>
+                                {itenary?.days?.map((day, dayIndex) => (
+                                  <li key={dayIndex}>
+                                    <strong>Date:</strong> {day.date} <br />
+                                    <strong>Plan:</strong> {day.plan.join(", ")} <br />
+                                    <strong>Cost:</strong> ${day.cost} <br />
+                                    <strong>Tip:</strong> {day.tip}
+                                  </li>
+                                ))}
+                              </ul>
                             </>
-                           
+
                             <Typography variant="body2">
                               <strong>Total:</strong>
                             </Typography>

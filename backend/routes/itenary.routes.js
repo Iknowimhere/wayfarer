@@ -9,5 +9,6 @@ const itineraryRouter = express.Router();
 itineraryRouter.post("/",auth,validateSchema(itinerarySchema),itineraryController.travelPlan);
 itineraryRouter.get("/",auth,itineraryController.getAllItinerary);
 itineraryRouter.delete("/:id",auth,itineraryController.deleteItinerary);
+itineraryRouter.get("/autocomplete",itineraryController.getAutocomplete);
 
 export default itineraryRouter;

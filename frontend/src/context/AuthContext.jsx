@@ -3,7 +3,7 @@ const AuthContext = createContext();
 
 
 export const AuthProvider = ({ children }) => {
-    let [token,setToken]=useState(null);
+    let [token,setToken]=useState((localStorage.getItem("userToken"))?localStorage.getItem("userToken"):null);
     useEffect(()=>{
         const token = localStorage.getItem("userToken");
         if(token){
