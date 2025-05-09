@@ -12,7 +12,16 @@ export const getUsers=asyncHandler(async (req,res,next)=>{
 })
 
 export const updateUser=asyncHandler(async (req,res,next)=>{
-    res.status(200).json({
-        message:"User updated successfully"
-    })
+    const {id}=req.params
+    // console.log(req.body);
+    
+    // console.log(req.files);
+    console.log(req.file);
+    let user=await userInstance.updateUser(id,req)
+    if(!user){
+        let err=new Error("User not found")
+        err.statusCode=404
+        throw err;
+    }
+    res.status(200).json(user)
 })
