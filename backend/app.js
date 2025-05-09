@@ -25,7 +25,7 @@ app.use(limiter)
 app.use(cors()) // Enable CORS for all routes
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
-app.use("/api/v1/itenaries",itenaryRoutes)
+app.use("/api/v1/itineraries",itenaryRoutes)
 
 app.all("*", (req, res, next) => {
   let err = new Error("Page not found");

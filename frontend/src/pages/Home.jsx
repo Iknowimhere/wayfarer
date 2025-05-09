@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../utils/axios";
 import useAuth from "../context/AuthContext";
-import useItinerary from "../context/ItenaryContent";
+import useItinerary from "../context/itenararyContent";
 import {
   Box,
   Button,
@@ -28,7 +28,7 @@ const Home = () => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const { itenaries, setItenaries } = useItinerary();
+  const { itenararies, setitenararies } = useItinerary();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     travelType: "",
@@ -57,7 +57,7 @@ const Home = () => {
 
     if (input.length > 1) {
       try {
-        const res = await axios.get('/itenaries/autocomplete', {
+        const res = await axios.get('/itenararies/autocomplete', {
           params: { location: input },
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -75,12 +75,12 @@ const Home = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/itenaries", formData, {
+      const response = await axios.post("/itenararies", formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log(response);
 
-      setItenaries((prev) => [...prev, response.data]);
+      setitenararies((prev) => [...prev, response.data]);
       alert("Itinerary created successfully!");
     } catch (error) {
       console.error("Error creating itinerary:", error);
@@ -105,10 +105,10 @@ const Home = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/itenaries/${id}`, {
+      await axios.delete(`/itenararies/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setItenaries((prev) => prev.filter((itenary) => itenary._id !== id));
+      setitenararies((prev) => prev.filter((itenarary) => itenarary._id !== id));
       alert("Itinerary deleted successfully!");
     } catch (error) {
       console.error("Error deleting itinerary:", error);
@@ -295,11 +295,11 @@ const Home = () => {
               <Typography variant="h5" gutterBottom>
                 Saved Itineraries
               </Typography>
-              {itenaries?.length > 0 ? (
+              {itenararies?.length > 0 ? (
                 <List>
-                  {itenaries?.map((itenary, index) => (
+                  {itenararies?.map((itenarary, index) => (
                     <ListItem
-                      key={itenary._id}
+                      key={itenarary._id}
                       sx={{
                         borderBottom: "1px solid #ddd",
                         paddingBottom: 2,
@@ -315,7 +315,7 @@ const Home = () => {
                             </Typography>
                             <>
                               <ul>
-                                {itenary?.days?.map((day, dayIndex) => (
+                                {itenarary?.days?.map((day, dayIndex) => (
                                   <li key={dayIndex}>
                                     <strong>Date:</strong> {day.date} <br />
                                     <strong>Plan:</strong> {day.plan.join(", ")} <br />
@@ -330,12 +330,12 @@ const Home = () => {
                               <strong>Total:</strong>
                             </Typography>
                             <ul>
-                              <li>Stay: ${itenary?.total?.stay}</li>
-                              <li>Food: ${itenary?.total?.food}</li>
-                              <li>Travel: ${itenary?.total?.travel}</li>
+                              <li>Stay: ${itenarary?.total?.stay}</li>
+                              <li>Food: ${itenarary?.total?.food}</li>
+                              <li>Travel: ${itenarary?.total?.travel}</li>
                             </ul>
                             <Typography variant="body2">
-                              <strong>Tips:</strong> {itenary?.tips?.join(", ")}
+                              <strong>Tips:</strong> {itenarary?.tips?.join(", ")}
                             </Typography>
                           </>
                         }
@@ -343,7 +343,7 @@ const Home = () => {
                       <IconButton
                         edge="end"
                         aria-label="delete"
-                        onClick={() => handleDelete(itenary?._id)}
+                        onClick={() => handleDelete(itenarary?._id)}
                         sx={{ color: "#ff4d4d" }}
                       >
                         <DeleteIcon />
