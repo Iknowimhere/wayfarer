@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../utils/axios";
 import useAuth from "../context/AuthContext";
-import useItinerary from "../context/itenararyContent";
+import useItinerary from "../context/ItenaryContent";
 import {
   Box,
   Button,

@@ -35,6 +35,7 @@ const Login = () => {
       const response = await axios.post('/auth/login', formData);
       // Store the token in localStorage
       localStorage.setItem('userToken', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
       
       // Redirect to dashboard or home page
       navigate('/home');

@@ -49,6 +49,7 @@ const Signup = () => {
       // Store the token in localStorage if provided in response
       if (response.data.token) {
         localStorage.setItem('userToken', response.data.token);
+          localStorage.setItem('user', JSON.stringify(response.data.user));
       }
       
      
