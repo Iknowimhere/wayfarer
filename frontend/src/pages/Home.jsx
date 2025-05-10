@@ -25,11 +25,12 @@ import Navbar from "../components/Navbar";
 
 const Home = () => {
   const { token } = useAuth();
-  const [query, setQuery] = useState('');
+  const { itineraries, setItineraries } = useItinerary();
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const { itenararies, setitenararies } = useItinerary();
-  const navigate = useNavigate();
+  const [debouncedInput, setDebouncedInput] = useState(""); // State for debounced input
   const [formData, setFormData] = useState({
     travelType: "",
     location: "",
@@ -37,50 +38,64 @@ const Home = () => {
     endDate: "",
     budget: "",
   });
-  // console.log(formData);
-
 
   useEffect(() => {
     if (!token) {
-      return navigate("/login");
+      navigate("/");
     }
   }, [token, navigate]);
 
+  // Debounce the input value
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedInput(query); // Update debounced input after delay
+    }, 500); // 500ms delay
+
+    return () => {
+      clearTimeout(handler); // Clear timeout on cleanup
+    };
+  }, [query]);
+
+  // Fetch suggestions when debounced input changes
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (debouncedInput.length > 1) {
+        try {
+          const res = await axios.get("/itinerary/autocomplete", {
+            params: { location: debouncedInput },
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          console.log(res);
+          
+          setSuggestions(res.data);
+        } catch (err) {
+          console.error("Error fetching suggestions", err);
+        }
+      } else {
+        setSuggestions([]);
+      }
+    };
+
+    fetchSuggestions();
+  }, [debouncedInput, token]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value,location: query });
+    setFormData({ ...formData, [name]: value, location: query });
   };
 
-  const handleLocationChange = async (e) => {
-    const input = e.target.value;
+  const handleLocationChange = (e) => {
+    setQuery(e.target.value); // Update query state
     setActiveIndex(-1);
-
-    if (input.length > 1) {
-      try {
-        const res = await axios.get('/itenararies/autocomplete', {
-          params: { location: input },
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        console.log(res);
-        
-        setSuggestions(res.data);
-      } catch (err) {
-        console.error('Error fetching suggestions', err);
-      }
-    } else {
-      setSuggestions([]);
-    }
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/itenararies", formData, {
+      const response = await axios.post("/itinerary", formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log(response);
-
-      setitenararies((prev) => [...prev, response.data]);
+      setItineraries((prev) => [...prev, response.data]);
       alert("Itinerary created successfully!");
     } catch (error) {
       console.error("Error creating itinerary:", error);
@@ -93,11 +108,11 @@ const Home = () => {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'ArrowDown') {
+    if (e.key === "ArrowDown") {
       setActiveIndex((prev) => (prev + 1) % suggestions.length);
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === "ArrowUp") {
       setActiveIndex((prev) => (prev - 1 + suggestions.length) % suggestions.length);
-    } else if (e.key === 'Enter' && activeIndex >= 0) {
+    } else if (e.key === "Enter" && activeIndex >= 0) {
       const selected = suggestions[activeIndex];
       handleSelect(selected);
     }
@@ -105,53 +120,31 @@ const Home = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/itenararies/${id}`, {
+      await axios.delete(`/itinerary/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setitenararies((prev) => prev.filter((itenarary) => itenarary._id !== id));
+      setItineraries((prev) => prev.filter((itinerary) => itinerary._id !== id));
       alert("Itinerary deleted successfully!");
     } catch (error) {
       console.error("Error deleting itinerary:", error);
     }
   };
 
-  return (
+  return token ? (
+   <>
+   <Navbar></Navbar>
     <Box>
-      {/* Navbar Section - Full Width */}
-      <Box sx={{ width: "100%", marginBottom: 4 }}>
-        <Navbar />
-      </Box>
-
-      {/* Content Section */}
-      <Container maxWidth="xl">
+      <Container maxWidth="xl" sx={{ marginTop: 4 }}>
         <Grid container spacing={4}>
           {/* Form Section */}
-          <Grid item xs={12} md={4}>
-            <Paper
-              elevation={3}
-              sx={{
-                padding: 3,
-                backgroundColor: "#1e1e2f",
-                color: "#fff",
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
+          <Grid>
+            <Paper elevation={3} sx={{ padding: 3 }}>
               <Typography variant="h5" gutterBottom>
                 Create a Travel Itinerary
               </Typography>
               <form onSubmit={handleSubmit}>
-                <FormControl
-                  fullWidth
-                  margin="normal"
-                  sx={{ marginBottom: 2 }}
-                >
-                  <InputLabel
-                    id="travel-type-label"
-                    sx={{ color: '#fff' }}
-                  >
-                    Travel Type
-                  </InputLabel>
+                <FormControl fullWidth margin="normal">
+                  <InputLabel id="travel-type-label">Travel Type</InputLabel>
                   <Select
                     labelId="travel-type-label"
                     label="Travel Type"
@@ -159,21 +152,6 @@ const Home = () => {
                     value={formData.travelType}
                     onChange={handleInputChange}
                     required
-                    sx={{
-                      color: '#fff',
-                      '.MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'rgba(255, 255, 255, 0.23)',
-                      },
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'rgba(255, 255, 255, 0.23)',
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'rgba(255, 255, 255, 0.23)',
-                      },
-                      '.MuiSvgIcon-root': {
-                        color: '#fff',
-                      }
-                    }}
                   >
                     <MenuItem value="">Select a travel type</MenuItem>
                     <MenuItem value="solo">Solo Travel</MenuItem>
@@ -195,20 +173,31 @@ const Home = () => {
                   onKeyDown={handleKeyDown}
                   margin="normal"
                   required
-                  InputLabelProps={{ style: { color: "#fff" } }}
-                  sx={{ input: { color: "#fff" }, marginBottom: 2 }}
+                  InputLabelProps={{ style: { color: "black" } }}
+                  sx={{ input: { color: "black" }, marginBottom: 2 }}
                 />
                 {suggestions.length > 0 && (
-                  <ul style={{ border: '1px solid #ccc', listStyle: 'none', padding: 0, margin: 0,position: 'absolute', backgroundColor: 'white', zIndex: 1 }}>
+                  <ul
+                    style={{
+                      border: "1px solid #ccc",
+                      listStyle: "none",
+                      padding: 0,
+                      margin: 0,
+                      position: "absolute",
+                      backgroundColor: "#ffffff",
+                      zIndex: 1000,
+                      opacity: 1,
+                      boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                    }}
+                  >
                     {suggestions.map((sug, index) => (
                       <li
                         key={sug}
                         onClick={() => handleSelect(sug)}
                         style={{
-                          padding: '8px',
-                          cursor: 'pointer',
-                          color: '#000',
-                          backgroundColor: index === activeIndex ? '#f0f0f0' : 'white',
+                          padding: "8px",
+                          cursor: "pointer",
+                          backgroundColor: index === activeIndex ? "#f0f0f0" : "#fff",
                         }}
                       >
                         {sug}
@@ -225,19 +214,7 @@ const Home = () => {
                   onChange={handleInputChange}
                   margin="normal"
                   required
-                  InputLabelProps={{
-                    shrink: true,
-                    style: { color: "#fff" },
-                  }}
-                  sx={{
-                    input: {
-                      color: "#fff",
-                      '&::-webkit-calendar-picker-indicator': {
-                        filter: 'invert(0.8)'
-                      }
-                    },
-                    marginBottom: 2
-                  }}
+                  InputLabelProps={{ shrink: true }}
                 />
                 <TextField
                   fullWidth
@@ -248,19 +225,7 @@ const Home = () => {
                   onChange={handleInputChange}
                   margin="normal"
                   required
-                  InputLabelProps={{
-                    shrink: true,
-                    style: { color: "#fff" },
-                  }}
-                  sx={{
-                    input: {
-                      color: "#fff",
-                      '&::-webkit-calendar-picker-indicator': {
-                        filter: 'invert(0.8)'
-                      }
-                    },
-                    marginBottom: 2
-                  }}
+                  InputLabelProps={{ shrink: true }}
                 />
                 <TextField
                   fullWidth
@@ -271,18 +236,8 @@ const Home = () => {
                   onChange={handleInputChange}
                   margin="normal"
                   required
-                  InputLabelProps={{ style: { color: "#fff" } }}
-                  sx={{ input: { color: "#fff" }, marginBottom: 2 }}
                 />
-                <Button
-                  type="submit"
-                  variant="contained"
-                  fullWidth
-                  sx={{
-                    backgroundColor: "#4caf50",
-                    "&:hover": { backgroundColor: "#45a049" },
-                  }}
-                >
+                <Button type="submit" variant="contained" fullWidth>
                   Create Itinerary
                 </Button>
               </form>
@@ -290,16 +245,16 @@ const Home = () => {
           </Grid>
 
           {/* Itineraries List */}
-          <Grid item xs={12} md={8}>
+          <Grid>
             <Paper elevation={3} sx={{ padding: 3 }}>
               <Typography variant="h5" gutterBottom>
                 Saved Itineraries
               </Typography>
-              {itenararies?.length > 0 ? (
+              {itineraries?.length > 0 ? (
                 <List>
-                  {itenararies?.map((itenarary, index) => (
+                  {itineraries.map((itinerary) => (
                     <ListItem
-                      key={itenarary._id}
+                      key={itinerary._id}
                       sx={{
                         borderBottom: "1px solid #ddd",
                         paddingBottom: 2,
@@ -307,35 +262,23 @@ const Home = () => {
                       }}
                     >
                       <ListItemText
-                        primary={`Itinerary ${index + 1}`}
+                        primary={`Itinerary: ${itinerary.location}`}
                         secondary={
                           <>
-                            <Typography variant="body2">
-                              <strong>Days:</strong>
+                            <Typography variant="body2" component="span">
+                              <strong>Travel Type:</strong> {itinerary.travelType}
                             </Typography>
-                            <>
-                              <ul>
-                                {itenarary?.days?.map((day, dayIndex) => (
-                                  <li key={dayIndex}>
-                                    <strong>Date:</strong> {day.date} <br />
-                                    <strong>Plan:</strong> {day.plan.join(", ")} <br />
-                                    <strong>Cost:</strong> ${day.cost} <br />
-                                    <strong>Tip:</strong> {day.tip}
-                                  </li>
-                                ))}
-                              </ul>
-                            </>
-
-                            <Typography variant="body2">
-                              <strong>Total:</strong>
+                            <br />
+                            <Typography variant="body2" component="span">
+                              <strong>Start Date:</strong> {itinerary.startDate}
                             </Typography>
-                            <ul>
-                              <li>Stay: ${itenarary?.total?.stay}</li>
-                              <li>Food: ${itenarary?.total?.food}</li>
-                              <li>Travel: ${itenarary?.total?.travel}</li>
-                            </ul>
-                            <Typography variant="body2">
-                              <strong>Tips:</strong> {itenarary?.tips?.join(", ")}
+                            <br />
+                            <Typography variant="body2" component="span">
+                              <strong>End Date:</strong> {itinerary.endDate}
+                            </Typography>
+                            <br />
+                            <Typography variant="body2" component="span">
+                              <strong>Budget:</strong> ${itinerary.budget}
                             </Typography>
                           </>
                         }
@@ -343,10 +286,10 @@ const Home = () => {
                       <IconButton
                         edge="end"
                         aria-label="delete"
-                        onClick={() => handleDelete(itenarary?._id)}
-                        sx={{ color: "#ff4d4d" }}
+                        onClick={() => handleDelete(itinerary._id)}
                       >
-                        <DeleteIcon />
+                        {/* <DeleteIcon /> */}
+                        Delete
                       </IconButton>
                     </ListItem>
                   ))}
@@ -359,6 +302,9 @@ const Home = () => {
         </Grid>
       </Container>
     </Box>
+   </>
+  ) : (
+    <p>Loading...</p>
   );
 };
 

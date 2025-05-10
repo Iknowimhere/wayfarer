@@ -5,7 +5,7 @@ import Navbar from '../components/Navbar';
 import useAuth from '../context/AuthContext';
 
 const Login = () => {
-  const { token } = useAuth();
+  const { token,setToken,setUser} = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -34,9 +34,9 @@ const Login = () => {
     try {
       const response = await axios.post('/auth/login', formData);
       // Store the token in localStorage
-      localStorage.setItem('userToken', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      
+
+        setToken(response.data.token);
+      setUser(response.data.user);
       // Redirect to dashboard or home page
       navigate('/home');
     } catch (err) {

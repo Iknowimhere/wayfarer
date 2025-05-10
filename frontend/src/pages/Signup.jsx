@@ -47,10 +47,8 @@ const Signup = () => {
       console.log(response.data);
       
       // Store the token in localStorage if provided in response
-      if (response.data.token) {
-        localStorage.setItem('userToken', response.data.token);
-          localStorage.setItem('user', JSON.stringify(response.data.user));
-      }
+      setToken(response.data.token);
+      setUser(response.data.user);
       
      
       navigate('/home');

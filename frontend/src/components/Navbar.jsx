@@ -43,9 +43,9 @@ function Navbar() {
   const [openModal, setOpenModal] = React.useState(false);
   const [selectedImage, setSelectedImage] = React.useState(null);
   const [selectedFile, setSelectedFile] = React.useState(null);
-  const { token,user,setUser } = useAuth();
+  const { token, user, setUser, logout } = useAuth();
 
-  
+
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -67,9 +67,16 @@ function Navbar() {
     setOpenModal(true);
   };
 
+  const handleLogout = () => {
+    logout(); // This will clear token and user from context
+    handleCloseUserMenu();
+    navigate('/login');
+  };
+
+
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
-    
+
     if (file) {
       setSelectedFile(file);
       setSelectedImage(URL.createObjectURL(file))
@@ -80,7 +87,7 @@ function Navbar() {
     let formData = new FormData();
     formData.append("displayPicture", selectedFile);
     try {
-        let res=await axios.put(`/users/${user._id}`,formData,{
+      let res = await axios.put(`/users/${user._id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
@@ -89,96 +96,100 @@ function Navbar() {
       setUser(res.data.user)
       setOpenModal(false)
       setSelectedImage(null);
-    setSelectedFile(null);
-      } catch (error) {
-        console.log(error)
-      }
+      setSelectedFile(null);
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (
     <>
-    <AppBar position="static" sx={{ backgroundColor: "transparent" }}>
-      <Container maxWidth="xl">
-        <Toolbar
-          disableGutters
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <img src={logo} alt="logo" style={{ height: "50px" }} />
-          {/* <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} /> */}
-          <Box
+      <AppBar position="static" sx={{ backgroundColor: "transparent" }}>
+        <Container maxWidth="xl">
+          <Toolbar
+            disableGutters
             sx={{
-              flexGrow: 0,
-              gap: "1em",
-              display: { xs: "none", md: "flex", alignItems: "center" },
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
-            {token ? (
-              <>
-              
-                <Tooltip title="Open settings">
-                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar
-                      alt="Remy Sharp"
-                      src={user.displayPicture}
-                    />
-                  </IconButton>
-                </Tooltip>
-                <Menu
-                  sx={{ mt: "45px" }}
-                  id="menu-appbar"
-                  anchorEl={anchorElUser}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  open={Boolean(anchorElUser)}
-                  onClose={handleCloseUserMenu}
-                >
-                  {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={setting === "Profile" ? handleProfileClick : handleCloseUserMenu}>
-                      <Typography sx={{ textAlign: "center" }}>
-                        {setting}
-                      </Typography>
-                    </MenuItem>
-                  ))}
-                </Menu>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  style={{ textDecoration: "none", color: "black" }}
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/signup"
-                  style={{
-                    textDecoration: "none",
-                    color: "white",
-                    backgroundColor: "green",
-                    padding: "0.5em 1em",
-                    borderRadius: "8px",
-                  }}
-                >
-                  Signup
-                </Link>
-              </>
-            )}
-          </Box>
-        </Toolbar>
-      </Container>
-    </AppBar>
-        <Modal
+            <img src={logo} alt="logo" style={{ height: "50px" }} />
+            {/* <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} /> */}
+            <Box
+              sx={{
+                flexGrow: 0,
+                gap: "1em",
+                display: { md: "flex", alignItems: "center" },
+              }}
+            >
+              {token ? (
+                <>
+
+                  <Tooltip title="Open settings">
+                    <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                      <Avatar
+                        alt="Remy Sharp"
+                        src={user.displayPicture}
+                      />
+                    </IconButton>
+                  </Tooltip>
+                  <Menu
+                    sx={{ mt: "45px" }}
+                    id="menu-appbar"
+                    anchorEl={anchorElUser}
+                    anchorOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    keepMounted
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    open={Boolean(anchorElUser)}
+                    onClose={handleCloseUserMenu}
+                  >
+                    {settings.map((setting) => (
+                      <MenuItem key={setting} onClick={setting === "Profile"
+                        ? handleProfileClick
+                        : setting === "Logout"
+                          ? handleLogout
+                          : handleCloseUserMenu}>
+                        <Typography sx={{ textAlign: "center" }}>
+                          {setting}
+                        </Typography>
+                      </MenuItem>
+                    ))}
+                  </Menu>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    style={{ textDecoration: "none", color: "black" }}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    style={{
+                      textDecoration: "none",
+                      color: "white",
+                      backgroundColor: "green",
+                      padding: "0.5em 1em",
+                      borderRadius: "8px",
+                    }}
+                  >
+                    Signup
+                  </Link>
+                </>
+              )}
+            </Box>
+          </Toolbar>
+        </Container>
+      </AppBar>
+      <Modal
         open={openModal}
         onClose={() => setOpenModal(false)}
         aria-labelledby="profile-modal-title"
@@ -187,7 +198,7 @@ function Navbar() {
           <Typography id="profile-modal-title" variant="h6" component="h2" gutterBottom>
             Update Profile Picture
           </Typography>
-          
+
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Avatar
               alt="Preview"
@@ -213,7 +224,7 @@ function Navbar() {
               disabled={!selectedImage}
               onClick={uploadImage}
             >Upload</UploadButton>
-             </Box>
+          </Box>
         </Box>
       </Modal>
     </>
