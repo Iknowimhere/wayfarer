@@ -3,6 +3,20 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from '../utils/axios';
 import Navbar from '../components/Navbar';
 import useAuth from '../context/AuthContext';
+import {
+  Box,
+  Button,
+  Container,
+  TextField,
+  Typography,
+  Alert,
+  Paper,
+  CircularProgress
+} from '@mui/material';
+import PersonIcon from '@mui/icons-material/Person';
+import EmailIcon from '@mui/icons-material/Email';
+import LockIcon from '@mui/icons-material/Lock';
+import HowToRegIcon from '@mui/icons-material/HowToReg';
 
 const Signup = () => {
   const { token } = useAuth();
@@ -31,8 +45,6 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
-    
     setLoading(true);
 
     try {
@@ -50,7 +62,6 @@ const Signup = () => {
       setToken(response.data.token);
       setUser(response.data.user);
       
-     
       navigate('/home');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
@@ -60,71 +71,99 @@ const Signup = () => {
   };
 
   return (
-    <div className="signup-container">
-      <Navbar/>
-    <div className="form-container">
-      <div className="form-wrapper">
-        <h2>Sign Up</h2>
-        {error && <div className="error-message">{error}</div>}
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="username">Username</label>
-            <input
-              type="text"
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+      <Navbar />
+      <Container component="main" maxWidth="xs">
+        <Paper
+          elevation={3}
+          sx={{
+            mt: 8,
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
+            Sign Up
+          </Typography>
+
+          {error && <Alert severity="error" sx={{ width: '100%', mb: 2 }}>{error}</Alert>}
+
+          <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
               id="username"
+              label="Username"
               name="username"
-              value={username}
+              autoComplete="username"
+              autoFocus
+              value={formData.username}
               onChange={handleChange}
-              required
-              placeholder="Enter your username"
+              InputProps={{
+                startAdornment: <PersonIcon sx={{ mr: 1, color: 'text.secondary' }} />,
+              }}
             />
-          </div>
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
+            <TextField
+              margin="normal"
+              required
+              fullWidth
               id="email"
+              label="Email"
               name="email"
-              value={email}
+              autoComplete="email"
+              value={formData.email}
               onChange={handleChange}
-              required
-              placeholder="Enter your email"
+              InputProps={{
+                startAdornment: <EmailIcon sx={{ mr: 1, color: 'text.secondary' }} />,
+              }}
             />
-          </div>
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
+            <TextField
+              margin="normal"
+              required
+              fullWidth
               id="password"
+              label="Password"
               name="password"
-              value={password}
-              onChange={handleChange}
-              required
-              placeholder="Enter your password"
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
-            <input
+              autoComplete="new-password"
               type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={confirmPassword}
+              value={formData.password}
               onChange={handleChange}
-              required
-              placeholder="Confirm your password"
+              InputProps={{
+                startAdornment: <LockIcon sx={{ mr: 1, color: 'text.secondary' }} />,
+              }}
             />
-          </div>
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Signing up...' : 'Sign Up'}
-          </button>
-        </form>
-        <div className="form-footer">
-          Already have an account? <Link to="/login">Login</Link>
-        </div>
-      </div>
-    </div>
-    </div>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="confirmPassword"
+              label="Confirm Password"
+              name="confirmPassword"
+              autoComplete="new-password"
+              type="password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              InputProps={{
+                startAdornment: <LockIcon sx={{ mr: 1, color: 'text.secondary' }} />,
+              }}
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              disabled={loading}
+              startIcon={loading ? <CircularProgress size={20} /> : <HowToRegIcon />}
+            >
+              {loading ? 'Signing up...' : 'Sign Up'}
+            </Button>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 
