@@ -12,7 +12,7 @@ class ItineraryController{
     }
 
     async getAllItinerary(req,res,next){
-        let alltravelPlan = await itineraryService.getAllItinerary();
+        let alltravelPlan = await itineraryService.getAllItinerary(req);
         res.status(200).json(alltravelPlan);
     }
     async deleteItinerary(req,res,next){

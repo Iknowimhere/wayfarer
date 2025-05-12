@@ -14,7 +14,7 @@ import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 import logo from "../assets/logo.png";
 import { height } from "@mui/system";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../context/AuthContext";
 import Modal from "@mui/material/Modal";
 import { styled } from "@mui/material/styles";
@@ -44,6 +44,7 @@ function Navbar() {
   const [selectedImage, setSelectedImage] = React.useState(null);
   const [selectedFile, setSelectedFile] = React.useState(null);
   const { token, user, setUser, logout } = useAuth();
+  let navigate = useNavigate();
 
 
 

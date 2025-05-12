@@ -56,6 +56,9 @@ class ItineraryService {
             
             let payload = req.body;
             payload.itinerary = jsonData;
+            if(req.userId){
+                payload.userId = req.userId;
+            }
             await this.saveItinerary(payload);
 
             return { message: "Success", data: jsonData};
@@ -79,8 +82,8 @@ class ItineraryService {
         }
     }
 
-    async getAllItinerary() {
-        let alltravelPlan = await itineraryModel.find();
+    async getAllItinerary(req) {
+        let alltravelPlan = await itineraryModel.find({userId: req.userId})
         if (alltravelPlan) {
             return alltravelPlan;
         } else {
