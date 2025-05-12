@@ -84,6 +84,9 @@ class ItineraryService {
 
     async getAllItinerary(req) {
         let alltravelPlan = await itineraryModel.find({userId: req.userId})
+        // .populate("userId", "name email displayPicture");
+        // console.log(alltravelPlan);
+        
         if (alltravelPlan) {
             return alltravelPlan;
         } else {
