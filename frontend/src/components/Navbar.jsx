@@ -113,7 +113,7 @@ function Navbar() {
 
   return (
     <>
-      <AppBar position="static" sx={{ backgroundColor: "transparent" }}>
+      <AppBar position="static" sx={{ backgroundColor: darkMode ? "#121212" : "#fff" }} elevation={0}>
         <Container maxWidth="xl">
           <Toolbar
             disableGutters
@@ -124,7 +124,6 @@ function Navbar() {
             }}
           >
             <img src={logo} alt="logo" style={{ height: "50px" }} />
-            {/* <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} /> */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <IconButton onClick={toggleTheme} color="inherit" sx={{ ml: 1 }}>
                 {muiTheme.palette.mode==="dark"? <Brightness7Icon sx={{color:"#fff"}}/> : <Brightness4Icon sx={{color:"#000"}}/>}
