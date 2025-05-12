@@ -35,10 +35,28 @@ const modalStyle = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 400,
-  bgcolor: 'background.paper',
+  bgcolor: darkMode ? darkModeColors.background : lightModeColors.background,
+  color: darkMode ? darkModeColors.text : lightModeColors.text,
   boxShadow: 24,
   p: 4,
   borderRadius: 2,
+  border: darkMode ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.12)'
+};
+
+const lightModeColors = {
+  background: '#ffffff',
+  text: '#2c3e50',
+  link: '#1a73e8',
+  buttonBg: '#4CAF50',
+  buttonText: '#ffffff'
+};
+
+const darkModeColors = {
+  background: '#1a1a1a',
+  text: '#ffffff',
+  link: '#90caf9',
+  buttonBg: '#388e3c',
+  buttonText: '#ffffff'
 };
 
 function Navbar() {
@@ -113,7 +131,16 @@ function Navbar() {
 
   return (
     <>
-      <AppBar position="static" sx={{ backgroundColor: darkMode ? "#121212" : "#fff" }} elevation={0}>
+      <AppBar 
+        position="static" 
+        elevation={0}
+        sx={{ 
+          backgroundColor: darkMode ? darkModeColors.background : lightModeColors.background,
+          color: darkMode ? darkModeColors.text : lightModeColors.text,
+          borderBottom: 1,
+          borderColor: darkMode ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)'
+        }}
+      >
         <Container maxWidth="xl">
           <Toolbar
             disableGutters
@@ -125,8 +152,17 @@ function Navbar() {
           >
             <img src={logo} alt="logo" style={{ height: "50px" }} />
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <IconButton onClick={toggleTheme} color="inherit" sx={{ ml: 1 }}>
-                {muiTheme.palette.mode==="dark"? <Brightness7Icon sx={{color:"#fff"}}/> : <Brightness4Icon sx={{color:"#000"}}/>}
+              <IconButton 
+                onClick={toggleTheme} 
+                sx={{ 
+                  ml: 1,
+                  color: darkMode ? darkModeColors.text : lightModeColors.text 
+                }}
+              >
+                {darkMode ? 
+                  <Brightness7Icon /> : 
+                  <Brightness4Icon />
+                }
               </IconButton>
               <Box
                 sx={{
@@ -179,7 +215,10 @@ function Navbar() {
                   <Box sx={{ display: "flex", gap: "1em",alignItems: "center" }}>
                     <Link
                       to="/login"
-                      style={{ textDecoration: "none" }}
+                      style={{ 
+                        textDecoration: "none",
+                        color: darkMode ? darkModeColors.link : lightModeColors.link
+                      }}
                     >
                       Login
                     </Link>
@@ -187,10 +226,14 @@ function Navbar() {
                       to="/signup"
                       style={{
                         textDecoration: "none",
-                        color: "white",
-                        backgroundColor: "green",
+                        color: darkModeColors.buttonText,
+                        backgroundColor: darkMode ? darkModeColors.buttonBg : lightModeColors.buttonBg,
                         padding: "0.5em 1em",
                         borderRadius: "8px",
+                        transition: "background-color 0.3s ease",
+                        "&:hover": {
+                          backgroundColor: darkMode ? '#2d7a30' : '#3d8c40'
+                        }
                       }}
                     >
                       Signup

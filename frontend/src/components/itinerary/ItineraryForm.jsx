@@ -88,6 +88,8 @@ const ItineraryForm = ({
         <Button 
           type="submit" 
           variant="contained" 
+            color={'primary'}
+          disabled={!formData.location || !formData.startDate || !formData.endDate}
           fullWidth 
           sx={{ mt: 2 }}
           startIcon={<AddCircleOutlineIcon />}
