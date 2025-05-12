@@ -9,8 +9,19 @@ const ItineraryContext = createContext();
 export const ItineraryProvider = ({ children }) => {
 
     const { token } = useAuth();
-    const [itenaries, setItenaries] = useState([]);
+    const [itineraries, setItineraries] = useState([]);
+    
 
+    const fetchItinaries = async () => {
+        try {
+            const response = await axios.get("/itineraries", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setItineraries([...response.data]);
+        } catch (error) {
+            console.error("Error fetching itineraries:", error);
+        }
+    };
 
     useEffect(() => {
         if (token) {
@@ -18,19 +29,8 @@ export const ItineraryProvider = ({ children }) => {
         }
     }, [token]);
 
-    const fetchItinaries = async () => {
-        try {
-            const response = await axios.get("/itenaries", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            setItenaries((prev) => [...prev, ...response.data]);
-        } catch (error) {
-            console.error("Error fetching itineraries:", error);
-        }
-    };
-
     return (
-        <ItineraryContext.Provider value={{ itenaries, setItenaries }}>
+        <ItineraryContext.Provider value={{ itineraries, setItineraries }}>
             {children}
         </ItineraryContext.Provider>
     );

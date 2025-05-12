@@ -46,6 +46,7 @@ class UserService {
     let updatedUser=await User.findByIdAndUpdate(id,{displayPicture:req.file.path},{new:true})
     return updatedUser
   }
+ 
 }
 
 let userInstance = new UserService();

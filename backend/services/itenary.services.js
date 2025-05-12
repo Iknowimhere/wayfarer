@@ -1,23 +1,26 @@
 import openAi from 'openai';
 import itineraryModel from '../models/itenary.model.js';
 import axios from 'axios';
+import { GoogleGenAI } from "@google/genai";
+
 
 class ItineraryService {
 
     async travelPlan(req) {
         try {
             const { travelType, location, startDate, endDate, budget } = req.body;
-            const client = new openAi({
-                apiKey: process.env.DEEPSEEK_APIKEY,
-                baseURL: "https://openrouter.ai/api/v1",
-            });
+            // const client = new openAi({
+            //     apiKey: process.env.DEEPSEEK_APIKEY,
+            //     baseURL: "https://openrouter.ai/api/v1",
+            // });
 
-            const response = await client.chat.completions.create({
-                model: "deepseek/deepseek-r1:free",
-                messages: [
-                    {
-                        role: "user",
-                        content: `Create a travel itinerary for travel type ${travelType} for the location ${location} from date (${startDate} to date ${endDate},and budget of  $${budget}). Return JSON:
+            const client = new GoogleGenAI({
+                apiKey: process.env.GEMINI_APIKEY,
+            })
+
+            const response = await client.models.generateContent({
+                model: "gemini-2.0-flash",
+                contents:  `Create a travel itinerary for travel type ${travelType} for the location ${location} from date (${startDate} to date ${endDate},and budget of  $${budget}). Return JSON:
                         {
                           "days": [{
                             "date": "YYYY-MM-DD",
@@ -32,17 +35,18 @@ class ItineraryService {
                           },
                           "tips": ["general tip 1", "general tip 2"]
                         }`,
-                    },
-                ],
-            });
+            })
+            // console.log(response.text);
+            
 
-            if (!response || !response.choices || !response.choices.length === 0) {
-                let err = new Error("No response from OpenAI");
+
+            if (!response || !response.text) {
+                let err = new Error("No response from Google GenAI");
                 err.statusCode = 500;
                 throw err;
             }
 
-            let content = response.choices[0].message.content;
+            let content = response.text;
             content = content
                 .replace(/```json\n/g, "")
                 .replace(/```/g, "")
@@ -52,7 +56,7 @@ class ItineraryService {
             
             let payload = req.body;
             payload.itinerary = jsonData;
-            let newTravelPlan = await this.saveItinerary(payload);
+            await this.saveItinerary(payload);
 
             return { message: "Success", data: jsonData};
             // return { message: "Success", data: jsonData, travelPlan: "newTravelPlan" };

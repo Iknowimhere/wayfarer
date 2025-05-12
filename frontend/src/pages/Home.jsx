@@ -61,7 +61,7 @@ const Home = () => {
     const fetchSuggestions = async () => {
       if (debouncedInput.length > 1) {
         try {
-          const res = await axios.get("/itinerary/autocomplete", {
+          const res = await axios.get("/itineraries/autocomplete", {
             params: { location: debouncedInput },
             headers: { Authorization: `Bearer ${token}` },
           });
@@ -92,7 +92,7 @@ const Home = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/itinerary", formData, {
+      const response = await axios.post("/itineraries", formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setItineraries((prev) => [...prev, response.data]);
@@ -120,7 +120,7 @@ const Home = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/itinerary/${id}`, {
+      await axios.delete(`/itineraries/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setItineraries((prev) => prev.filter((itinerary) => itinerary._id !== id));
@@ -288,8 +288,8 @@ const Home = () => {
                         aria-label="delete"
                         onClick={() => handleDelete(itinerary._id)}
                       >
-                        {/* <DeleteIcon /> */}
-                        Delete
+                        <DeleteIcon />
+                        {/* Delete */}
                       </IconButton>
                     </ListItem>
                   ))}
