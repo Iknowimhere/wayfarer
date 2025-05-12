@@ -71,7 +71,7 @@ const Signup = () => {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }} autoComplete="off">
       <Navbar />
       <Container component="main" maxWidth="xs">
         <Paper

@@ -19,45 +19,30 @@ import useAuth from "../context/AuthContext";
 import Modal from "@mui/material/Modal";
 import { styled } from "@mui/material/styles";
 import axios from "../utils/axios";
-import { useTheme } from "../context/ThemeContext";
 import { useTheme as useMuiTheme } from '@mui/material/styles';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
+import {useTheme} from '../context/ThemeContext'; // Import your custom theme hook
+
 const settings = ["Profile", "Logout"];
 
 const UploadButton = styled(Button)({
   marginTop: '1rem'
 });
 
-const modalStyle = {
+const modalStyle = (theme) => ({
   position: 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 400,
-  bgcolor: darkMode ? darkModeColors.background : lightModeColors.background,
-  color: darkMode ? darkModeColors.text : lightModeColors.text,
+  bgcolor: theme.palette.background.paper,
+  color: theme.palette.text.primary,
   boxShadow: 24,
   p: 4,
   borderRadius: 2,
-  border: darkMode ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.12)'
-};
-
-const lightModeColors = {
-  background: '#ffffff',
-  text: '#2c3e50',
-  link: '#1a73e8',
-  buttonBg: '#4CAF50',
-  buttonText: '#ffffff'
-};
-
-const darkModeColors = {
-  background: '#1a1a1a',
-  text: '#ffffff',
-  link: '#90caf9',
-  buttonBg: '#388e3c',
-  buttonText: '#ffffff'
-};
+  border: `1px solid ${theme.palette.divider}`
+});
 
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -66,8 +51,8 @@ function Navbar() {
   const [selectedImage, setSelectedImage] = React.useState(null);
   const [selectedFile, setSelectedFile] = React.useState(null);
   const { token, user, setUser, logout } = useAuth();
-  const { darkMode, toggleTheme } = useTheme();
-  const muiTheme = useMuiTheme();
+  const muiTheme = useMuiTheme(); // MUI theme
+  const { darkMode, toggleTheme } = useTheme(); // Your custom theme hook
   let navigate = useNavigate();
 
 
@@ -135,10 +120,10 @@ function Navbar() {
         position="static" 
         elevation={0}
         sx={{ 
-          backgroundColor: darkMode ? darkModeColors.background : lightModeColors.background,
-          color: darkMode ? darkModeColors.text : lightModeColors.text,
+          bgcolor: 'background.paper',
+          color: 'text.primary',
           borderBottom: 1,
-          borderColor: darkMode ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)'
+          borderColor: 'divider'
         }}
       >
         <Container maxWidth="xl">
@@ -156,21 +141,16 @@ function Navbar() {
                 onClick={toggleTheme} 
                 sx={{ 
                   ml: 1,
-                  color: darkMode ? darkModeColors.text : lightModeColors.text 
+                  color: 'text.primary'
                 }}
               >
-                {darkMode ? 
-                  <Brightness7Icon /> : 
-                  <Brightness4Icon />
-                }
+                {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
               </IconButton>
-              <Box
-                sx={{
-                  flexGrow: 0,
-                  gap: "1em",
-                  display: { md: "flex", alignItems: "center" },
-                }}
-              >
+              <Box sx={{
+                flexGrow: 0,
+                gap: "1em",
+                display: { md: "flex", alignItems: "center" },
+              }}>
                 {token ? (
                   <>
 
@@ -217,7 +197,7 @@ function Navbar() {
                       to="/login"
                       style={{ 
                         textDecoration: "none",
-                        color: darkMode ? darkModeColors.link : lightModeColors.link
+                        color: muiTheme.palette.primary.main
                       }}
                     >
                       Login
@@ -226,13 +206,13 @@ function Navbar() {
                       to="/signup"
                       style={{
                         textDecoration: "none",
-                        color: darkModeColors.buttonText,
-                        backgroundColor: darkMode ? darkModeColors.buttonBg : lightModeColors.buttonBg,
+                        color: muiTheme.palette.primary.contrastText,
+                        backgroundColor: muiTheme.palette.primary.main,
                         padding: "0.5em 1em",
                         borderRadius: "8px",
                         transition: "background-color 0.3s ease",
                         "&:hover": {
-                          backgroundColor: darkMode ? '#2d7a30' : '#3d8c40'
+                          backgroundColor: muiTheme.palette.primary.dark
                         }
                       }}
                     >
@@ -250,7 +230,7 @@ function Navbar() {
         onClose={() => setOpenModal(false)}
         aria-labelledby="profile-modal-title"
       >
-        <Box sx={modalStyle}>
+        <Box sx={modalStyle(muiTheme)}>
           <Typography id="profile-modal-title" variant="h6" component="h2" gutterBottom>
             Update Profile Picture
           </Typography>

@@ -74,7 +74,7 @@ const Login = () => {
 
           {error && <Alert severity="error" sx={{ width: '100%', mb: 2 }}>{error}</Alert>}
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+          <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }} autoComplete='off'>
             <TextField
               margin="normal"
               required

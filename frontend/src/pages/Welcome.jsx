@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useTheme } from '@mui/material/styles'; // Use MUI theme hook
 import Navbar from '../components/Navbar';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../context/AuthContext';
@@ -26,11 +27,41 @@ import InstagramIcon from '@mui/icons-material/Instagram';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 
 const featuredLocations = [
-  { name: 'Paris, France', image: '/src/assets/paris.jpg', description: 'City of Love and Lights' },
-  { name: 'Tokyo, Japan', image: '/src/assets/tokyo.jpg', description: 'Where Tradition Meets Future' },
-  { name: 'New York, USA', image: '/src/assets/newyork.jpg', description: 'The City That Never Sleeps' },
-  { name: 'Sydney, Australia', image: '/src/assets/sydney.jpg', description: 'Harbor City Paradise' },
-  { name: 'Dubai, UAE', image: '/src/assets/dubai.jpg', description: 'Modern Desert Miracle' },
+  { 
+    name: 'Paris, France', 
+    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34',
+    localImage: '/src/assets/paris.jpg', 
+    description: 'City of Love and Lights',
+    alt: 'Eiffel Tower at sunset in Paris'
+  },
+  { 
+    name: 'Tokyo, Japan', 
+    image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf',
+    localImage: '/src/assets/tokyo.jpg', 
+    description: 'Where Tradition Meets Future',
+    alt: 'Tokyo cityscape with Mount Fuji'
+  },
+  { 
+    name: 'New York, USA', 
+    image: 'https://images.unsplash.com/photo-1522083165195-3424ed129620',
+    localImage: '/src/assets/newyork.jpg', 
+    description: 'The City That Never Sleeps',
+    alt: 'Manhattan skyline with Empire State Building'
+  },
+  { 
+    name: 'Sydney, Australia', 
+    image: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9',
+    localImage: '/src/assets/sydney.jpg', 
+    description: 'Harbor City Paradise',
+    alt: 'Sydney Opera House and Harbor Bridge'
+  },
+  { 
+    name: 'Dubai, UAE', 
+    image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c',
+    localImage: '/src/assets/dubai.jpg', 
+    description: 'Modern Desert Miracle',
+    alt: 'Dubai skyline with Burj Khalifa'
+  }
 ];
 
 const features = [
@@ -59,6 +90,8 @@ const features = [
 const Welcome = () => {
   const { token } = useAuth();
   const navigate = useNavigate();
+  const theme = useTheme(); // Get MUI theme
+  const isDark = theme.palette.mode === 'dark'; // Check if dark mode
 
   useEffect(() => {
     if (token) {
@@ -67,14 +100,18 @@ const Welcome = () => {
   }, [token, navigate]);
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box sx={{ 
+      minHeight: '100vh', 
+      bgcolor: 'background.default',
+      color: 'text.primary'
+    }}>
       <Navbar />
       
       {/* Hero Section */}
       <Box
         sx={{
           height: { xs: '70vh', md: 'calc(100vh - 64px)' },
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/src/assets/welcome.jpg')`,
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, ${isDark ? '0.7' : '0.5'}), rgba(0, 0, 0, ${isDark ? '0.7' : '0.5'})), url('/src/assets/welcome.jpg')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           display: 'flex',
@@ -113,7 +150,11 @@ const Welcome = () => {
       </Box>
 
       {/* Features Section */}
-      <Box sx={{ py: 8, bgcolor: 'background.paper' }}>
+      <Box sx={{ 
+        py: 8, 
+        bgcolor: 'background.default',
+        color: 'text.primary'
+      }}>
         <Container maxWidth="lg">
           <Typography variant="h3" component="h2" textAlign="center" gutterBottom>
             Why Choose Wayfarer?
@@ -129,7 +170,9 @@ const Welcome = () => {
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'flex-start',
-                    minHeight: 250, // Set minimum height
+                    minHeight: 250,
+                    bgcolor: 'background.default',
+                    color: 'text.primary',
                   }}
                 >
                   <CardContent sx={{ 
@@ -178,7 +221,11 @@ const Welcome = () => {
       </Box>
 
       {/* Featured Locations */}
-      <Box sx={{ py: 8 }}>
+      <Box sx={{ 
+        py: 8,
+        bgcolor: 'background.paper',
+        color: 'text.primary'
+      }}>
         <Container maxWidth="lg">
           <Typography variant="h3" component="h2" textAlign="center" gutterBottom>
             Featured Destinations
@@ -189,13 +236,33 @@ const Welcome = () => {
           <Grid container spacing={3}>
             {featuredLocations.map((location, index) => (
               <Grid item xs={12} sm={6} md={4} key={index}>
-                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <Card 
+                  sx={{ 
+                    height: '100%', 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    overflow: 'hidden',
+                    bgcolor: 'background.paper',
+                    color: 'text.primary',
+                    '&:hover': {
+                      boxShadow: 6
+                    }
+                  }}
+                >
                   <CardMedia
                     component="img"
                     height="200"
                     image={location.image}
-                    alt={location.name}
-                    sx={{ bgcolor: 'grey.300' }} // Placeholder color
+                    alt={location.alt}
+                    loading="lazy"
+                    sx={{ 
+                      bgcolor: 'grey.300',
+                      objectFit: 'cover',
+                      transition: 'transform 0.3s ease-in-out',
+                      '&:hover': {
+                        transform: 'scale(1.05)'
+                      }
+                    }}
                   />
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
@@ -213,7 +280,12 @@ const Welcome = () => {
       </Box>
 
       {/* Footer */}
-      <Box sx={{ bgcolor: 'background.paper', py: 6, mt: 'auto' }}>
+      <Box sx={{ 
+        bgcolor: 'background.paper',
+        color: 'text.primary',
+        py: 6, 
+        mt: 'auto' 
+      }}>
         <Container maxWidth="lg">
           <Grid container spacing={4}>
             <Grid item xs={12} md={4}>
