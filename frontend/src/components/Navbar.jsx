@@ -94,7 +94,9 @@ function Navbar() {
           Authorization: `Bearer ${token}`,
         },
       })
-      setUser(res.data.user)
+      // console.log(res);
+      
+      setUser(res.data)
       setOpenModal(false)
       setSelectedImage(null);
       setSelectedFile(null);
@@ -131,7 +133,7 @@ function Navbar() {
                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                       <Avatar
                         alt="Remy Sharp"
-                        src={user.displayPicture}
+                        src={user?.displayPicture}
                       />
                     </IconButton>
                   </Tooltip>
