@@ -19,6 +19,10 @@ import useAuth from "../context/AuthContext";
 import Modal from "@mui/material/Modal";
 import { styled } from "@mui/material/styles";
 import axios from "../utils/axios";
+import { useTheme } from "../context/ThemeContext";
+import { useTheme as useMuiTheme } from '@mui/material/styles';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 const settings = ["Profile", "Logout"];
 
 const UploadButton = styled(Button)({
@@ -44,6 +48,8 @@ function Navbar() {
   const [selectedImage, setSelectedImage] = React.useState(null);
   const [selectedFile, setSelectedFile] = React.useState(null);
   const { token, user, setUser, logout } = useAuth();
+  const { darkMode, toggleTheme } = useTheme();
+  const muiTheme = useMuiTheme();
   let navigate = useNavigate();
 
 
@@ -95,7 +101,7 @@ function Navbar() {
         },
       })
       // console.log(res);
-      
+
       setUser(res.data)
       setOpenModal(false)
       setSelectedImage(null);
@@ -119,75 +125,80 @@ function Navbar() {
           >
             <img src={logo} alt="logo" style={{ height: "50px" }} />
             {/* <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} /> */}
-            <Box
-              sx={{
-                flexGrow: 0,
-                gap: "1em",
-                display: { md: "flex", alignItems: "center" },
-              }}
-            >
-              {token ? (
-                <>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <IconButton onClick={toggleTheme} color="inherit" sx={{ ml: 1 }}>
+                {muiTheme.palette.mode==="dark"? <Brightness7Icon sx={{color:"#fff"}}/> : <Brightness4Icon sx={{color:"#000"}}/>}
+              </IconButton>
+              <Box
+                sx={{
+                  flexGrow: 0,
+                  gap: "1em",
+                  display: { md: "flex", alignItems: "center" },
+                }}
+              >
+                {token ? (
+                  <>
 
-                  <Tooltip title="Open settings">
-                    <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                      <Avatar
-                        alt="Remy Sharp"
-                        src={user?.displayPicture}
-                      />
-                    </IconButton>
-                  </Tooltip>
-                  <Menu
-                    sx={{ mt: "45px" }}
-                    id="menu-appbar"
-                    anchorEl={anchorElUser}
-                    anchorOrigin={{
-                      vertical: "top",
-                      horizontal: "right",
-                    }}
-                    keepMounted
-                    transformOrigin={{
-                      vertical: "top",
-                      horizontal: "right",
-                    }}
-                    open={Boolean(anchorElUser)}
-                    onClose={handleCloseUserMenu}
-                  >
-                    {settings.map((setting) => (
-                      <MenuItem key={setting} onClick={setting === "Profile"
-                        ? handleProfileClick
-                        : setting === "Logout"
-                          ? handleLogout
-                          : handleCloseUserMenu}>
-                        <Typography sx={{ textAlign: "center" }}>
-                          {setting}
-                        </Typography>
-                      </MenuItem>
-                    ))}
-                  </Menu>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/login"
-                    style={{ textDecoration: "none", color: "black" }}
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    to="/signup"
-                    style={{
-                      textDecoration: "none",
-                      color: "white",
-                      backgroundColor: "green",
-                      padding: "0.5em 1em",
-                      borderRadius: "8px",
-                    }}
-                  >
-                    Signup
-                  </Link>
-                </>
-              )}
+                    <Tooltip title="Open settings">
+                      <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                        <Avatar
+                          alt="Remy Sharp"
+                          src={user?.displayPicture}
+                        />
+                      </IconButton>
+                    </Tooltip>
+                    <Menu
+                      sx={{ mt: "45px" }}
+                      id="menu-appbar"
+                      anchorEl={anchorElUser}
+                      anchorOrigin={{
+                        vertical: "top",
+                        horizontal: "right",
+                      }}
+                      keepMounted
+                      transformOrigin={{
+                        vertical: "top",
+                        horizontal: "right",
+                      }}
+                      open={Boolean(anchorElUser)}
+                      onClose={handleCloseUserMenu}
+                    >
+                      {settings.map((setting) => (
+                        <MenuItem key={setting} onClick={setting === "Profile"
+                          ? handleProfileClick
+                          : setting === "Logout"
+                            ? handleLogout
+                            : handleCloseUserMenu}>
+                          <Typography sx={{ textAlign: "center" }}>
+                            {setting}
+                          </Typography>
+                        </MenuItem>
+                      ))}
+                    </Menu>
+                  </>
+                ) : (
+                  <Box sx={{ display: "flex", gap: "1em",alignItems: "center" }}>
+                    <Link
+                      to="/login"
+                      style={{ textDecoration: "none" }}
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      to="/signup"
+                      style={{
+                        textDecoration: "none",
+                        color: "white",
+                        backgroundColor: "green",
+                        padding: "0.5em 1em",
+                        borderRadius: "8px",
+                      }}
+                    >
+                      Signup
+                    </Link>
+                  </Box>
+                )}
+              </Box>
             </Box>
           </Toolbar>
         </Container>

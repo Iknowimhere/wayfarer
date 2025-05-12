@@ -12,6 +12,51 @@ body {
   line-height: 1.6;
   /* overflow: hidden; */
 }
+/* Add these at the end of your existing CSS */
+
+/* Dark mode styles */
+.dark-mode {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+.dark-mode .MuiPaper-root {
+  background-color: #2d2d2d;
+  color: #ffffff;
+}
+
+.dark-mode .MuiInputBase-root {
+  color: #ffffff;
+}
+
+.dark-mode .MuiInputLabel-root {
+  color: #ffffff;
+}
+
+.dark-mode .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.23);
+}
+
+.dark-mode .form-wrapper {
+  background-color: #2d2d2d;
+  color: #ffffff;
+}
+
+.dark-mode .navbar {
+  background-color: #2d2d2d;
+}
+
+.dark-mode .MuiAppBar-root {
+  background-color: #2d2d2d !important;
+}
+
+.dark-mode .MuiIconButton-root {
+  color: #ffffff;
+}
+
+.dark-mode a {
+  color: #ffffff;
+}
 
 /* Form styles */
 .form-container {
@@ -23,7 +68,7 @@ body {
 }
 
 .form-wrapper {
-  background-color: white;
+  /* background-color: white; */
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 30px;
@@ -34,7 +79,7 @@ body {
 h2 {
   text-align: center;
   margin-bottom: 24px;
-  color: #2c3e50;
+  /* color: #2c3e50; */
 }
 
 .form-group {
@@ -138,14 +183,14 @@ input:focus {
 
 .navbar-links a {
   text-decoration: none;
-  color: #2c3e50;
+  /* color: #2c3e50; */
   font-size: 16px;
   font-weight: 500;
   transition: color 0.3s;
 }
 
 .navbar-links a:hover {
-  color: #27ae60;
+  /* color: #27ae60; */
 }
 
 .navbar-button {
