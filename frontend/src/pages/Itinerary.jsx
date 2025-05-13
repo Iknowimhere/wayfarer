@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "../utils/axios";
 import useAuth from "../context/AuthContext";
 import { 
@@ -13,7 +13,8 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemIcon 
+  ListItemIcon,
+  IconButton
 } from "@mui/material";
 import Navbar from "../components/Navbar";
 import { format } from "date-fns";
@@ -23,6 +24,7 @@ import DateRangeIcon from '@mui/icons-material/DateRange';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import {CircularProgress} from "@mui/material";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const Itinerary = () => {
   const [itinerary, setItinerary] = useState(null);
@@ -30,6 +32,7 @@ const Itinerary = () => {
   const [error, setError] = useState(null);
   const { id } = useParams();
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   const fetchItinerary = async (id) => {
     try {
@@ -73,6 +76,19 @@ const Itinerary = () => {
     <>
       <Navbar />
       <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Box sx={{ mb: 2 }}>
+          <IconButton 
+            onClick={() => navigate('/home')} 
+            sx={{ 
+              mb: 2,
+              '&:hover': {
+                bgcolor: 'action.hover',
+              }
+            }}
+          >
+            <ArrowBackIcon />
+          </IconButton>
+        </Box>
         <Paper elevation={0} sx={{ p: 3, borderRadius: 2 }}>
           {/* Header Section */}
           <Box sx={{ mb: 4 }}>

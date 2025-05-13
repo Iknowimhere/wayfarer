@@ -6,6 +6,7 @@ import axios from "../utils/axios";
 import Navbar from "../components/Navbar";
 import ItineraryForm from "../components/itinerary/ItineraryForm";
 import ItineraryList from "../components/itinerary/ItineraryList";
+import { useTheme } from '@mui/material/styles';
 
 const capitalizeWords = (str) => {
   return str
@@ -16,6 +17,8 @@ const capitalizeWords = (str) => {
 
 const Home = () => {
   const { token } = useAuth();
+  let {theme}=useTheme()
+  
   // const { itineraries, setItineraries } = useItinerary();
     const [itineraries, setItineraries] = useState([]);
   const navigate = useNavigate();
