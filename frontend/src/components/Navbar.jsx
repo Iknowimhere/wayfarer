@@ -135,7 +135,9 @@ function Navbar() {
               alignItems: "center",
             }}
           >
+           <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
             <img src={logo} alt="logo" style={{ height: "50px" }} />
+           </Link>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <IconButton 
                 onClick={toggleTheme} 

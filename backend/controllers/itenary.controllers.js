@@ -29,6 +29,15 @@ class ItineraryController{
         }
         res.status(200).json(autocomplete);
     }
+
+    async getItineraryById(req,res,next){
+        let itinerary = await itineraryService.getItineraryById(req.params.id);
+        if (!itinerary) {
+            res.status(404).json({ message: "No data found" });
+            return;
+        }
+        res.status(200).json(itinerary);
+    }
 }
 
 export default new ItineraryController();

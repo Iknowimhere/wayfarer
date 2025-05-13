@@ -17,6 +17,7 @@ import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import { format } from 'date-fns';
+import { Link } from 'react-router-dom';
 
 const ItineraryList = ({ itineraries, isLoading, onDelete, capitalizeWords }) => {
   return (
@@ -33,7 +34,7 @@ const ItineraryList = ({ itineraries, isLoading, onDelete, capitalizeWords }) =>
       ) : Array.isArray(itineraries) && itineraries.length > 0 ? (
         <List>
           {itineraries.map((itinerary, index) => (
-            <ListItem
+       <Link to={`/itineraries/${itinerary._id}`}>     <ListItem
               key={`itinerary-${itinerary._id || index}`}
               sx={{
                 borderRadius: 1,
@@ -92,7 +93,7 @@ const ItineraryList = ({ itineraries, isLoading, onDelete, capitalizeWords }) =>
                   </Stack>
                 }
               />
-            </ListItem>
+            </ListItem></Link>
           ))}
         </List>
       ) : (

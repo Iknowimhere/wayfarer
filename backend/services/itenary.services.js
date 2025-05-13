@@ -1,4 +1,4 @@
-import openAi from 'openai';
+
 import itineraryModel from '../models/itenary.model.js';
 import axios from 'axios';
 import { GoogleGenAI } from "@google/genai";
@@ -9,10 +9,6 @@ class ItineraryService {
     async travelPlan(req) {
         try {
             const { travelType, location, startDate, endDate, budget } = req.body;
-            // const client = new openAi({
-            //     apiKey: process.env.DEEPSEEK_APIKEY,
-            //     baseURL: "https://openrouter.ai/api/v1",
-            // });
 
             const client = new GoogleGenAI({
                 apiKey: process.env.GEMINI_APIKEY,
@@ -36,7 +32,7 @@ class ItineraryService {
                           "tips": ["general tip 1", "general tip 2"]
                         }`,
             })
-            // console.log(response.text);
+
             
 
 
@@ -62,7 +58,6 @@ class ItineraryService {
             await this.saveItinerary(payload);
 
             return { message: "Success", data: jsonData};
-            // return { message: "Success", data: jsonData, travelPlan: "newTravelPlan" };
 
         } catch (error) {
             throw error;
@@ -73,7 +68,6 @@ class ItineraryService {
     async saveItinerary(payload) {
         let newTravelPlan = await itineraryModel.create(payload);
         if (newTravelPlan) {
-            // console.log("Travel Plan is saved ", newTravelPlan);
             return "saved";
         } else {
             let error = new Error("Unable to save itinerary");
@@ -117,7 +111,16 @@ class ItineraryService {
     });
     return response.data.predictions.map((prediction) => prediction.description);
     }
-
+    async getItineraryById(id) {
+        let itinerary = await itineraryModel.findById(id);
+        if (itinerary) {
+            return itinerary;
+        } else {
+            let err = new Error("Travel Plans not found");
+            err.statusCode = 404;
+            throw err;
+        }
+    }
 }
 
 export default new ItineraryService();
