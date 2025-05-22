@@ -26,7 +26,7 @@ let userSchema = new Schema(
     },
     confirmPassword: {
       type: String,
-      select:false,
+      select: false,
       minLength: [6, "Min character length is 6"],
       required: [true, "Confirm password is a required field"],
       validate: {
@@ -40,21 +40,45 @@ let userSchema = new Schema(
       type: String,
       default: "https://w7.pngwing.com/pngs/177/551/png-transparent-user-interface-design-computer-icons-default-stephen-salazar-graphy-user-interface-design-computer-wallpaper-sphere-thumbnail.png",
     },
+    stripeCustomerId: {
+      type: String,
+      default: null
+    },
+    subscriptionId: {
+      type: String,
+      default: null
+    },
+    subscriptionStatus: {
+      type: String,
+      enum: ['active', 'inactive', 'trialing', 'past_due', 'canceled', null],
+      default: null
+    },
+    isSubscribed: {
+      type: Boolean,
+      default: false
+    },
+    currentPeriodEnd: {
+      type: Date,
+      default: null
+    }
   },
   {
-    timestamps: true, 
+    timestamps: true,
   }
 );
 
 //pre middleware
-userSchema.pre("save", async function(next){
-    this.password=await bcrypt.hash(this.password, 10)
-    this.confirmPassword=undefined
-    next()
+userSchema.pre("save", async function (next) {
+  if(!this.isModified("password")) {
+    return next();
+  }
+  this.password = await bcrypt.hash(this.password, 10)
+  this.confirmPassword = undefined
+  next()
 })
 
-userSchema.methods.comparePassword=async function(pwd,pwdDB){
-      return await bcrypt.compare(pwd,pwdDB)
+userSchema.methods.comparePassword = async function (pwd, pwdDB) {
+  return await bcrypt.compare(pwd, pwdDB)
 }
 
 let User = model("User", userSchema);

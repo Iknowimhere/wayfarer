@@ -21,6 +21,8 @@ export let register=asyncHandler(async (req,res,next)=>{
 export let login=asyncHandler(async (req,res,next)=>{
     let {password}=req.body
     let exisitingUser=await authInstance.loginUser(req);
+    console.log(await exisitingUser.comparePassword(password,exisitingUser.password));
+    
     if(!exisitingUser || !(await exisitingUser.comparePassword(password,exisitingUser.password))){
         let err=new Error("Invalid email or password")
         err.statusCode=400

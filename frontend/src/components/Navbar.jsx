@@ -5,15 +5,15 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
+
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import AdbIcon from "@mui/icons-material/Adb";
+
 import logo from "../assets/logo.png";
-import { height } from "@mui/system";
+
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../context/AuthContext";
 import Modal from "@mui/material/Modal";
@@ -22,7 +22,9 @@ import axios from "../utils/axios";
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
-import {useTheme} from '../context/ThemeContext'; // Import your custom theme hook
+import { useTheme } from '../context/ThemeContext'; // Import your custom theme hook
+import PaymentIcon from '@mui/icons-material/Payment';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 const settings = ["Profile", "Logout"];
 
@@ -50,6 +52,7 @@ function Navbar() {
   const [openModal, setOpenModal] = React.useState(false);
   const [selectedImage, setSelectedImage] = React.useState(null);
   const [selectedFile, setSelectedFile] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState(false);
   const { token, user, setUser, logout } = useAuth();
   const muiTheme = useMuiTheme(); // MUI theme
   const { darkMode, toggleTheme } = useTheme(); // Your custom theme hook
@@ -114,12 +117,48 @@ function Navbar() {
     }
   }
 
+  const handleSubscribe = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post('/stripe/create-checkout-session', {}, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      // Redirect to Stripe Checkout
+      window.location.href = response.data.url;
+    } catch (error) {
+      console.error('Subscription error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    try {
+      setIsLoading(true);
+      await axios.post('/stripe/cancel-subscription', {}, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      // Update user context with updated subscription status
+      const updatedUser = { ...user, isSubscribed: false };
+      setUser(updatedUser);
+    } catch (error) {
+      console.error('Cancel subscription error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
-      <AppBar 
-        position="static" 
+      <AppBar
+        position="static"
         elevation={0}
-        sx={{ 
+        sx={{
           bgcolor: 'background.paper',
           color: 'text.primary',
           borderBottom: 1,
@@ -135,13 +174,13 @@ function Navbar() {
               alignItems: "center",
             }}
           >
-           <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
-            <img src={logo} alt="logo" style={{ height: "50px" }} />
-           </Link>
+            <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+              <img src={logo} alt="logo" style={{ height: "50px" }} />
+            </Link>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <IconButton 
-                onClick={toggleTheme} 
-                sx={{ 
+              <IconButton
+                onClick={toggleTheme}
+                sx={{
                   ml: 1,
                   color: 'text.primary'
                 }}
@@ -155,11 +194,35 @@ function Navbar() {
               }}>
                 {token ? (
                   <>
+                    {/* Add Subscription Button */}
+                    {user?.isSubscribed ? (
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        startIcon={<CancelIcon />}
+                        onClick={handleCancelSubscription}
+                        disabled={isLoading}
+                        sx={{ mr: 2 }}
+                      >
+                        {isLoading ? 'Processing...' : 'Cancel Premium'}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<PaymentIcon />}
+                        onClick={handleSubscribe}
+                        disabled={isLoading}
+                        sx={{ mr: 2 }}
+                      >
+                        {isLoading ? 'Processing...' : 'Upgrade to Premium'}
+                      </Button>
+                    )}
 
                     <Tooltip title="Open settings">
                       <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                         <Avatar
-                          alt="Remy Sharp"
+                          alt="User Avatar"
                           src={user?.displayPicture}
                         />
                       </IconButton>
@@ -194,10 +257,10 @@ function Navbar() {
                     </Menu>
                   </>
                 ) : (
-                  <Box sx={{ display: "flex", gap: "1em",alignItems: "center" }}>
+                  <Box sx={{ display: "flex", gap: "1em", alignItems: "center" }}>
                     <Link
                       to="/login"
-                      style={{ 
+                      style={{
                         textDecoration: "none",
                         color: muiTheme.palette.primary.main
                       }}
