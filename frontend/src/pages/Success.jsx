@@ -27,7 +27,7 @@ const Success = () => {
         console.log(err);
     });
 
-  }, [user, navigate]);
+  }, []);
   return (
     <>
       <Navbar />

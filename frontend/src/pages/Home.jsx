@@ -95,7 +95,7 @@ const Home = () => {
     if (token) {
       fetchItineraries();
     }
-  }, [token]);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

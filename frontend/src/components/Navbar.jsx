@@ -25,6 +25,8 @@ import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { useTheme } from '../context/ThemeContext'; // Import your custom theme hook
 import PaymentIcon from '@mui/icons-material/Payment';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { enqueueSnackbar, closeSnackbar } from "notistack";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 const settings = ["Profile", "Logout"];
 
@@ -136,21 +138,55 @@ function Navbar() {
   };
 
   const handleCancelSubscription = async () => {
-    try {
-      setIsLoading(true);
-      await axios.post('/stripe/cancel-subscription', {}, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      // Update user context with updated subscription status
-      const updatedUser = { ...user, isSubscribed: false };
-      setUser(updatedUser);
-    } catch (error) {
-      console.error('Cancel subscription error:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    const snackbarKey = enqueueSnackbar('Are you sure you want to cancel your subscription?', {
+      variant: 'warning',
+      persist: true,
+      action: (snackbarKey) => (  // Change 'key' to 'snackbarKey' for clarity
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <IconButton
+            size="small"
+            aria-label="confirm cancel"
+            color="inherit"
+            onClick={async () => {
+              try {
+                setIsLoading(true);
+                await axios.post('/stripe/cancel-subscription', {}, {
+                  headers: {
+                    Authorization: `Bearer ${token}`
+                  }
+                });
+                const updatedUser = { ...user, isSubscribed: false };
+                setUser(updatedUser);
+                closeSnackbar(snackbarKey); // Close confirmation snackbar first
+                enqueueSnackbar('Subscription cancelled successfully', { 
+                  variant: 'success',
+                  autoHideDuration: 3000
+                });
+                navigate('/home');
+              } catch (error) {
+                closeSnackbar(snackbarKey); // Close confirmation snackbar on error
+                enqueueSnackbar('Failed to cancel subscription', { 
+                  variant: 'error',
+                  autoHideDuration: 3000
+                });
+              } finally {
+                setIsLoading(false);
+              }
+            }}
+          >
+            <CheckCircleIcon />
+          </IconButton>
+          <IconButton
+            size="small"
+            aria-label="cancel"
+            color="inherit"
+            onClick={() => closeSnackbar(snackbarKey)} // Use snackbarKey directly
+          >
+            <CancelIcon />
+          </IconButton>
+        </Box>
+      ),
+    });
   };
 
   return (
