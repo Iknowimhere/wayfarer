@@ -60,6 +60,10 @@ let userSchema = new Schema(
     currentPeriodEnd: {
       type: Date,
       default: null
+    },
+    itenaryCount:{
+      type: Number,
+      default: 0
     }
   },
   {

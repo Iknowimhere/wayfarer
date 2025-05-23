@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Container, Grid } from "@mui/material";
+import { Box, Container, Grid, Button } from "@mui/material";
+import { useSnackbar } from 'notistack';
 import useAuth from "../context/AuthContext";
 import axios from "../utils/axios";
 import Navbar from "../components/Navbar";
 import ItineraryForm from "../components/itinerary/ItineraryForm";
 import ItineraryList from "../components/itinerary/ItineraryList";
 import { useTheme } from '@mui/material/styles';
+import UpgradeDialog from '../components/UpgradeDialog';
 
 const capitalizeWords = (str) => {
   return str
@@ -16,7 +18,8 @@ const capitalizeWords = (str) => {
 };
 
 const Home = () => {
-  const { token } = useAuth();
+  const { token, user, setUser } = useAuth(); // Add user to destructuring
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   let {theme}=useTheme()
   
   // const { itineraries, setItineraries } = useItinerary();
@@ -34,6 +37,7 @@ const Home = () => {
     budget: "",
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false); // State for upgrade dialog
 
   useEffect(() => {
     if (!token) {
@@ -97,6 +101,26 @@ const Home = () => {
     }
   }, []);
 
+  // Update the useEffect for refreshing user data
+  useEffect(() => {
+    if (token && user?._id) {  // Check for both token and user ID
+      const refreshUserData = async () => {
+        try {
+          const response = await axios.get(`/users/${user._id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setUser(response.data);
+        } catch (error) {
+          console.error('Error refreshing user data:', error);
+          enqueueSnackbar('Failed to refresh user data', { 
+            variant: 'error' 
+          });
+        }
+      };
+      refreshUserData();
+    }
+  }, [token, user?._id]); // Add user._id to dependencies
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value, location: query });
@@ -111,9 +135,16 @@ const Home = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Check if user has reached free plan limit using itineraryCount
+      if (!user.isSubscribed && user.itineraryCount >= 2) {
+        setShowUpgradeDialog(true);
+        return;
+      }
+
       await axios.post("/itineraries", formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      
       // Clear form data
       setFormData({
         travelType: "",
@@ -122,12 +153,34 @@ const Home = () => {
         endDate: "",
         budget: "",
       });
-      setQuery(""); // Clear location query
-      // Fetch updated list
+      setQuery("");
+      // Fetch updated user data to get new itineraryCount
       await fetchItineraries();
-      alert("Itinerary created successfully!");
+      enqueueSnackbar('Itinerary created successfully!', { 
+        variant: 'success' 
+      });
     } catch (error) {
-      console.error("Error creating itinerary:", error);
+      if (error.response?.status === 403) {
+        enqueueSnackbar('Free plan limit reached. Please upgrade to continue.', {
+          variant: 'warning',
+          action: (key) => (
+            <Button 
+              color="primary"
+              size="small"
+              onClick={() => {
+                closeSnackbar(key);
+                setShowUpgradeDialog(true);
+              }}
+            >
+              Upgrade Now
+            </Button>
+          ),
+        });
+      } else {
+        enqueueSnackbar('Error creating itinerary', { 
+          variant: 'error' 
+        });
+      }
     }
   };
 
@@ -162,6 +215,39 @@ const Home = () => {
     }
   };
 
+  const handleSubscribe = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post('/stripe/create-checkout-session', {}, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      // Redirect to Stripe Checkout
+      window.location.href = response.data.url;
+    } catch (error) {
+      enqueueSnackbar('Error creating subscription', {
+        variant: 'error',
+        action: (key) => (
+          <Button 
+            color="primary"
+            size="small"
+            onClick={() => {
+              closeSnackbar(key);
+              setShowUpgradeDialog(true);
+            }}
+          >
+            Retry
+          </Button>
+        ),
+      });
+      console.error('Subscription error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const suggestionStyles = {
     position: 'absolute',
     width: '100%',
@@ -192,6 +278,7 @@ const Home = () => {
                 onLocationSelect={handleSelect}
                 onKeyDown={handleKeyDown}
                 suggestionStyles={suggestionStyles}
+                user={user}  // Pass the user object
               />
             </Grid>
             <Grid item xs={12} md={7}>
@@ -205,6 +292,14 @@ const Home = () => {
           </Grid>
         </Container>
       </Box>
+      <UpgradeDialog
+        open={showUpgradeDialog}
+        onClose={() => setShowUpgradeDialog(false)}
+        onUpgrade={() => {
+          setShowUpgradeDialog(false);
+          handleSubscribe();
+        }}
+      />
     </>
   ) : (
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }} />

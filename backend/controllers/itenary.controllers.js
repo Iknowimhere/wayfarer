@@ -1,43 +1,33 @@
-
 import itineraryService from "../services/itenary.services.js";
+import expressAsyncHandler from "express-async-handler";
 
-class ItineraryController{
+export const travelPlan = expressAsyncHandler(async (req, res) => {
+    const travelPlan = await itineraryService.travelPlan(req);
+    res.status(200).json(travelPlan);
+});
 
-    async travelPlan(req,res,next){
+export const getAllItinerary = expressAsyncHandler(async (req, res) => {
+    const alltravelPlan = await itineraryService.getAllItinerary(req);
+    res.status(200).json(alltravelPlan);
+});
 
-        let travelPlan = await itineraryService.travelPlan(req);
-        // console.log("hello");
-        
-        res.status(200).json(travelPlan);
+export const deleteItinerary = expressAsyncHandler(async (req, res) => {
+    await itineraryService.deleteItinerary(req.params.id);
+    res.sendStatus(204);
+});
+
+export const getAutocomplete = expressAsyncHandler(async (req, res) => {
+    const autocomplete = await itineraryService.getAutocomplete(req);
+    if (!autocomplete) {
+        return res.status(404).json({ message: "No data found" });
     }
+    res.status(200).json(autocomplete);
+});
 
-    async getAllItinerary(req,res,next){
-        let alltravelPlan = await itineraryService.getAllItinerary(req);
-        res.status(200).json(alltravelPlan);
+export const getItineraryById = expressAsyncHandler(async (req, res) => {
+    const itinerary = await itineraryService.getItineraryById(req.params.id);
+    if (!itinerary) {
+        return res.status(404).json({ message: "No data found" });
     }
-    async deleteItinerary(req,res,next){
-        await itineraryService.deleteItinerary(req.params.id);
-        res.sendStatus(204)
-    }
-
-
-    async getAutocomplete(req,res,next){
-        let autocomplete = await itineraryService.getAutocomplete(req);
-        if (!autocomplete) {
-            res.status(404).json({ message: "No data found" });
-            return;
-        }
-        res.status(200).json(autocomplete);
-    }
-
-    async getItineraryById(req,res,next){
-        let itinerary = await itineraryService.getItineraryById(req.params.id);
-        if (!itinerary) {
-            res.status(404).json({ message: "No data found" });
-            return;
-        }
-        res.status(200).json(itinerary);
-    }
-}
-
-export default new ItineraryController();
+    res.status(200).json(itinerary);
+});

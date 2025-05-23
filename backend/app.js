@@ -33,14 +33,15 @@ app.use("/api/v1/itineraries",itenaryRoutes)
 app.use('/api/v1/stripe', stripeRoutes);
 app.use("/api/v1/stripe/webhook",webhookRoutes);
 
-app.all("*", (req, res, next) => {
-  let err = new Error("Page not found");
-  err.statusCode = 404;
-  next(err);
-});
+// app.all((req, res, next) => {
+//   let err = new Error("Page not found");
+//   err.statusCode = 404;
+//   next(err);
+// });
 
 //global error handler
 app.use((err, req, res, next) => {
+  
   let statusCode = err.statusCode || 500;
   let message = err.message || "Something went wrong";
 

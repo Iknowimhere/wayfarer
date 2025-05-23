@@ -1,7 +1,9 @@
 
 import itineraryModel from '../models/itenary.model.js';
+import userModel from '../models/user.model.js';
 import axios from 'axios';
 import { GoogleGenAI } from "@google/genai";
+
 
 
 class ItineraryService {
@@ -9,6 +11,14 @@ class ItineraryService {
     async travelPlan(req) {
         try {
             const { travelType, location, startDate, endDate, budget } = req.body;
+            
+            let user=await userModel.findById(req.userId);
+
+            if(!user.isSubscribed && user.itenaryCount>=2){
+                let err = new Error("You have reached the limit of 2 itineraries. Please subscribe to create more itineraries.");
+                err.statusCode = 403;
+                throw err;
+            }
 
             const client = new GoogleGenAI({
                 apiKey: process.env.GEMINI_APIKEY,
@@ -56,7 +66,9 @@ class ItineraryService {
                 payload.userId = req.userId;
             }
             await this.saveItinerary(payload);
-
+            // user.itenaryCount = user.itenaryCount + 1;
+            // await user.save();
+           await userModel.findByIdAndUpdate(req.userId, { $inc: { itenaryCount: 1 } });
             return { message: "Success", data: jsonData};
 
         } catch (error) {

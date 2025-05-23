@@ -16,6 +16,15 @@ import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import LocationAutocomplete from './LocationAutocomplete';
 import DateRangePicker from './DateRangePicker';
+import WarningIcon from '@mui/icons-material/Warning';
+
+const travelTypes = [
+  { value: 'solo', label: 'Solo Travel' },
+  { value: 'couple', label: 'Couple Trip' },
+  { value: 'family', label: 'Family Vacation' },
+  { value: 'friends', label: 'Friends Group' },
+  { value: 'business', label: 'Business Trip' }
+];
 
 const ItineraryForm = ({ 
   formData, 
@@ -27,7 +36,9 @@ const ItineraryForm = ({
   onLocationChange,
   onLocationSelect,
   onKeyDown,
-  suggestionStyles
+  suggestionStyles,
+  user,
+  itineraries
 }) => {
   return (
     <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
@@ -50,7 +61,19 @@ const ItineraryForm = ({
             onChange={onInputChange}
             required
           >
-            {/* ... MenuItem components ... */}
+            {travelTypes.map((type) => (
+              <MenuItem 
+                key={type.value} 
+                value={type.value}
+                sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  gap: 1
+                }}
+              >
+                {type.label}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
 
@@ -97,6 +120,21 @@ const ItineraryForm = ({
           Create Itinerary
         </Button>
       </form>
+
+      {!user?.isSubscribed && user?.itineraryCount === 1 && (
+        <Typography
+          color="warning.main"
+          sx={{
+            mt: 2,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1
+          }}
+        >
+          <WarningIcon fontSize="small" />
+          You have 1 free itinerary remaining
+        </Typography>
+      )}
     </Paper>
   );
 };
